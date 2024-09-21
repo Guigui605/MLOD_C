@@ -139,13 +139,27 @@ gagnantPrixTuring* readWinners(FILE* monFichier, int nombreDeGagnants){
 
 int main(int argc, char** argv) {
 	char filename[] = "turingWinners.csv";
-	char outputFilename[] = "out.csv";
+        char* outputFilename;
+        if(argc > 2){
+                outputFilename = malloc(sizeof(char)*(strlen(argv[1])+1));
 
+                for(int i = 0;i<strlen(argv[1]);i++){
+                        outputFilename[i] = argv[1][i];
+                }
+        }
+        else if(argc>1){
+
+        }
+	else {
+                outputFilename = malloc(8*sizeof(char));
+                outputFilename = "out.csv\0";
+        }
 	FILE * fileCsv = fopen(filename,"r");
         int taille = numberOfWinners(fileCsv);
         rewind (fileCsv);
         gagnantPrixTuring* tousLesGagnants = readWinners(fileCsv, taille);
         FILE* outputFile = fopen(outputFilename,"w");
+        free(outputFilename);
         printWinner(tousLesGagnants,outputFile,taille);
         free(tousLesGagnants);
 
