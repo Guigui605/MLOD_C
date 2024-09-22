@@ -67,12 +67,12 @@ void printWinner(gagnantPrixTuring* tableauDeGagnants, FILE* myOutputFile, int t
         monFichierSortie[tailleDeToutMonFichierSortie-1] = '\0';
 
         fputs(monFichierSortie, myOutputFile);
+        free(monFichierSortie);
         fclose(myOutputFile);
 }
 
 unsigned short numberOfWinners(FILE* monFichier){
         rewind(monFichier);
-        char maLigne[2048];
         int cpt=0;
         for(;;){
                 char caractere = fgetc(monFichier);
@@ -137,32 +137,87 @@ gagnantPrixTuring* readWinners(FILE* monFichier, int nombreDeGagnants){
         return tousLesGagnants;
 }
 
-int main(int argc, char** argv) {
-	char filename[] = "turingWinners.csv";
-        char* outputFilename;
-        if(argc > 2){
-                outputFilename = malloc(sizeof(char)*(strlen(argv[1])+1));
-
-                for(int i = 0;i<strlen(argv[1]);i++){
-                        outputFilename[i] = argv[1][i];
+void infosAnnee(int annee, gagnantPrixTuring* tousLesGagnants, int taille){
+        for(int i = 0;i< taille;i++){
+                if(tousLesGagnants[i].annee == annee){
+                        printf("\nLe prix Turing de %d a été décerné à %s pour : %s\n",annee, tousLesGagnants[i].gagnant, tousLesGagnants[i].travail);
+                        break;
                 }
         }
-        else if(argc>1){
+}
 
+void sortTuringWinnersByYear(gagnantPrixTuring* tousLesGagnants, int taille){
+        for(int i = 0;i<taille;i++){
+                for(int j = 0;j<taille-1;j++){
+                        if(tousLesGagnants[j].annee == tousLesGagnants[j+1].annee){
+                                gagnantPrixTuring temp = tousLesGagnants[j];
+                                tousLesGagnants[j] = tousLesGagnants[j+1];
+                                tousLesGagnants[j+1] = temp;
+                        }
+                }
         }
-	else {
-                outputFilename = malloc(8*sizeof(char));
-                outputFilename = "out.csv\0";
-        }
-	FILE * fileCsv = fopen(filename,"r");
+}
+
+int main(int argc, char** argv) {
+        //a chaque fois un paramètre avec - pour dire de quel type de paramètre il s'agit, et le paramètre suivant qui est le paramètre de l'action correspondante.
+	char filename[] = "turingWinners.csv";
+        char* outputFilename;
+        FILE * fileCsv = fopen(filename,"r");
         int taille = numberOfWinners(fileCsv);
         rewind (fileCsv);
         gagnantPrixTuring* tousLesGagnants = readWinners(fileCsv, taille);
-        FILE* outputFile = fopen(outputFilename,"w");
-        free(outputFilename);
-        printWinner(tousLesGagnants,outputFile,taille);
-        free(tousLesGagnants);
+        for(int i = 0;i<argc;i++){
+                printf("\nParamètre : %s",argv[i]);
+        }
 
+
+        for(int i = 1;i<argc;i++){
+                char optionO [] = "-o";
+                char optionInfo[] = "--info";
+                char optionSort[] = "--sort";
+
+                int optO = 1;
+                int optInfo = 1;
+                int optSort = 1;
+
+                for(int j = 0; strlen(argv[i]); j++){
+                        if(j<strlen(optionO) && optO!=0 && argv[i][j] != optionO[j]){
+                                optO = 0;
+                        }
+                        if(j<strlen(optionInfo) && optInfo!=0 && argv[i][j] != optionInfo[j]){
+                                optInfo = 0;
+                        }
+                        if(j<strlen(optionSort) && optSort!=0 && argv[i][j] != optionSort[j]){
+                                optSort = 0;
+                        }
+                }
+
+                if(optO){
+                        rename(filename,argv[i+1]);
+                        if(*argv[i+2] != '-'){
+                                outputFilename = argv[i+2];
+                        }
+                        else{
+                                outputFilename = "out.csv\0";
+                        }
+                        i++;
+                }
+                if(optInfo){
+                        infosAnnee(atoi(argv[i+1]),tousLesGagnants,taille);
+                        i++;
+                }
+                if(optSort){
+                        sortTuringWinnersByYear(tousLesGagnants, taille);
+                }
+        }
+        FILE* outputFile = fopen(outputFilename,"w");
+        printWinner(tousLesGagnants, outputFile,taille);
+        for(int i = 0;i<taille;i++){
+                free(tousLesGagnants[i].gagnant);
+                free(tousLesGagnants[i].travail);
+        }
+        free(tousLesGagnants);
+        
 
         
         //On a finit de récupérer les données du fichier de début.
