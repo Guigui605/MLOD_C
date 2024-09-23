@@ -174,11 +174,9 @@ int main(int argc, char** argv) {
         int taille = numberOfWinners(fileCsv);
         rewind (fileCsv);
         gagnantPrixTuring* tousLesGagnants = readWinners(fileCsv, taille);
-        for(int i = 0;i<argc;i++){
-                printf("\nParamètre : %s\n",argv[i]);
-        }
 
         int freeOutputName = 1;
+        int optionRename = 0;
 
         for(int i = 1;i<argc;i++){
                 char optionO [] = "-o";
@@ -200,8 +198,9 @@ int main(int argc, char** argv) {
                                 optSort = 0;
                         }
                 }
-                printf("optO = %d\n",optO);
+
                 if(optO==1){
+                        optionRename = 1;
                         rename(filename,argv[i+1]);
                         if(argc >= i+1 &&*argv[i+2] != '-'){
                                 outputFilename = argv[i+2];
@@ -217,12 +216,12 @@ int main(int argc, char** argv) {
                         infosAnnee(atoi(argv[i+1]),tousLesGagnants,taille);
                         i++;
                 }
-                printf("optSort = %d\n",optSort);
+                
                 if(optSort==1){
                         sortTuringWinnersByYear(tousLesGagnants, taille);
                 }
         }
-        if(argc == 1){
+        if(optionRename == 0){
                 outputFilename = malloc(sizeof(char)*8);
                 strcpy(outputFilename,"out.csv\0");
         }
@@ -244,7 +243,7 @@ int main(int argc, char** argv) {
                 free(tousLesGagnants[i].travail);
         }
         free(tousLesGagnants);
-        
+
 
         
         //On a finit de récupérer les données du fichier de début.
