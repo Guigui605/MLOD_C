@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
                         infosAnnee(atoi(argv[i+1]),tousLesGagnants,taille);
                         i++;
                 }
-                
+                        
                 if(optSort==1){
                         sortTuringWinnersByYear(tousLesGagnants, taille);
                 }
