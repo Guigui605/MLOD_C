@@ -72,6 +72,7 @@ void detruire_i(Liste l) {
 // version récursive
 void detruire_r(Liste l) {
 	if(l!=NULL){
+		detruireElement(l->val);
 		detruire_r(l->suiv);
 		free(l);
 	}
@@ -111,13 +112,12 @@ bool equalsElement(Element e1, Element e2){
 // version itérative
 Liste cherche_i(Element v,Liste l) {
 	Liste elementActuel = l;
-	while (elementActuel->val != v ){
-		if(elementActuel->suiv == NULL)
-			return NULL;
-		else
-			elementActuel = elementActuel->suiv;
+	while (elementActuel != NULL ){
+		if(elementActuel->val == v)
+			return elementActuel;
+		elementActuel = elementActuel->suiv;
 	}
-	return elementActuel;
+	return NULL;
 }
 
 // version récursive
@@ -141,25 +141,24 @@ Liste retirePremier_i(Element v, Liste l) {
 		return l;
 	}
 	Liste elementActuel = l;
-	Liste elementSuivant = l->suiv;
-	if(elementActuel->val == v){
-		return elementSuivant;
-	}else if(elementSuivant == NULL){
+	if(l->val == v){
+		detruireElement(l->val);
+		elementActuel = l->suiv;
+		free(l);
+		return elementActuel;
+	}
+
+	Liste precedent = l, p=l->suiv;
+	while(!estVide(p) && !equalsElement(p->val,v)){
+		precedent = p;
+		p = p->suiv;
+	}
+	if(!estVide(p)){
+		precedent->suiv = p->suiv;
+		detruireElement(p->val);
+		free(p);
+	}
 		return l;
-	}
-	while(elementSuivant->val != v){
-		if(elementSuivant->suiv == NULL){
-			return l;
-		}
-		else{
-			elementActuel = elementSuivant;
-			elementSuivant = elementActuel->suiv;
-		}
-	}
-	elementActuel->suiv = elementSuivant->suiv;
-	detruireElement(elementSuivant->val);
-	free(elementSuivant);
-	return l;
 }
 
 
