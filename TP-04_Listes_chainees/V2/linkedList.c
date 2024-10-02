@@ -1,4 +1,4 @@
-#include "liste-chainee.h"
+#include "linkedListOfMusic.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -77,6 +77,9 @@ void detruire_r(Liste l) {
 Liste ajoutFin_i(Element v, Liste l) {
 	Liste nvElement = creer(v);
 	Liste elementActuel = l;
+	if(l == NULL){
+		return nvElement;
+	}
 	while(elementActuel->suiv != NULL){
 		elementActuel = elementActuel->suiv;
 	}
